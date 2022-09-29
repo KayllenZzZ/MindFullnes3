@@ -3,29 +3,25 @@ package com.example.mindfullnes
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import com.example.mindfullnes.presentations.navigation.NavItem
+import com.example.mindfullnes.presentations.screens.MeditateView
 import com.example.mindfullnes.ui.theme.*
 import com.example.mindfullnes.utils.*
 
@@ -39,58 +35,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-@OptIn(ExperimentalComposeApi::class)
-@Composable
-fun MeditateView() {
-    val navController = rememberNavController()
-    Column(
-        modifier = Modifier
-            .background(Grey)
-            .fillMaxSize()
-    ) {
-        HeaderProfileComponent()
-        Navigation(navController)
-        MeditationTypesComponent()
-    }
-}
-
-@Preview
-@Composable
-fun HeaderProfileComponent() {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 16.dp, end = 16.dp, top = 16.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.i),
-                contentDescription = "Profile picture",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(CircleShape)
-            )
-            Column(modifier = Modifier.padding(start = 10.dp)) {
-                Text(
-                    text = "Welcome back",
-                    fontFamily = nunitoLight,
-                    fontSize = 16.sp,
-                    textAlign = TextAlign.Start
-                )
-                Text(
-                    text = "Miranda Smith",
-                    fontFamily = nunitoBold,
-                    fontSize = 24.sp,
-                    textAlign = TextAlign.Start
-                )
-            }
-        }
-    }
-}
-
 
 @Composable
 fun FilterOptionsComponent(navController: NavController) {
@@ -120,10 +64,20 @@ fun FilterOptionsComponent(navController: NavController) {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ChipComponent(filter: FilterContent, currentRoute: String, route: String, navController: NavController) {
+fun ChipComponent(
+    filter: FilterContent,
+    currentRoute: String,
+    route: String,
+    navController: NavController,
+) {
     val contentColor = filter.contentColor
     val chipBackground = filter.backgroundColor
     val filterText = filter.filterText
+    val selected = currentRoute == route
+    val animationProgress: Float by animateFloatAsState(
+        targetValue = if (selected) 1f else 0f,
+        animationSpec = tween(1000)
+    )
     Chip(
         onClick = {
             navController.navigate(route) {
@@ -137,8 +91,9 @@ fun ChipComponent(filter: FilterContent, currentRoute: String, route: String, na
             }
         },
         colors = ChipDefaults.chipColors(
-            contentColor = contentColor,
-            backgroundColor = chipBackground
+            contentColor = if (selected) contentColor else chipBackground,
+            //backgroundColor = if (selected) chipBackground else contentColor
+            backgroundColor = colorScheme.primary.copy(alpha = animationProgress)
         ),
         shape = RoundedCornerShape(8.dp)
     ) {
@@ -147,8 +102,8 @@ fun ChipComponent(filter: FilterContent, currentRoute: String, route: String, na
 }
 
 @Composable
-fun MeditationTypesComponent() {
-    val meditationOptions = MEDITATION_TYPE_LIST
+fun MeditationTypesComponent(type: Int) {
+    val meditationOptions = if (type == 2) MEDITATION_TYPE_LIST_2 else MEDITATION_TYPE_LIST
     LazyColumn(
         Modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)

@@ -30,3 +30,24 @@ val MEDITATION_TYPE_LIST = listOf(
         Yellow
     )
 )
+
+val MEDITATION_TYPE_LIST_2 = listOf(
+    MeditationType(
+        "45 mins",
+        "James Madchen",
+        "Love-kind meditation",
+        "During loving kindness meditation, you focus benevolent and loving energy toward yourself and others.",
+        Green,
+        Black,
+        Yellow
+    ),
+    MeditationType(
+        "34 mins",
+        "Kate Landon",
+        "Flower meditation",
+        "Outdoor concentration meditation, the object is a flower.",
+        Yellow,
+        Black,
+        Green
+    )
+)
